@@ -102,19 +102,93 @@ To create this database, I will need to register what I do and why, which is the
         *   Foreign Key 
     *   **merchant_name**: Name of the merchant where the deposit is made
         *   String/Varchar 
+    *   **dep_external_id**: Deposit id vissible for third parties 
+        *   Unique  
+        *   Varchar     
 
-### Table: Partner [Merchants/External Financial Provider] 
-    *   **partner_id**: The id of the merchant where the deposit is made 
+### Table Payin 
+*   **Payin**: Payin is the hability to deposit in this payment method with the financial provider
+    *   **payin_id**: Unique identifier for the transaction    
+        *   Unique
+        *   Varchar (Integer and characters)
+        *   Primary Key
+        *   Automatically complete
+    *   **account_id**: The account id of the users account, independently if it is the local currency one or the USD account 
+        *   Foreign Key 
+        *   Unique
+        *   String/Varchar   
+        *   Combination of integers and characters    
+    *   **amount**: Transaction amount  
+        *   Integer
+        *   No max amount 
+    *   **currency**: Account currency
+        *   Varchar
+        *   Depence on the account_id field 
+    *   **provider_id**: The id of the financial provider where the deposit is made 
         *   Unique 
         *   Foreign Key 
-    *   **partner_name**: Name of the merchant where the deposit is made
+    *   **provider_name**: Name of the financial provider where the deposit is made
         *   String/Varchar 
-    *   **partner_type**: Type of the business partner
+    *   **in_external_id**: Deposit id vissible for third parties 
+        *   Unique  
+        *   Varchar    
+
+### Table: Payout
+*   **Payout**: payout is the hability to deposit in the financial provider with this payment method.
+    *   **payout_id**: Unique identifier for the transaction    
+        *   Unique
+        *   Varchar (Integer and characters)
+        *   Primary Key
+        *   Automatically complete
+    *   **account_id**: The account id of the users account, independently if it is the local currency one or the USD account 
+        *   Foreign Key 
+        *   Unique
+        *   String/Varchar   
+        *   Combination of integers and characters    
+    *   **amount**: Transaction amount  
+        *   Integer
+        *   No max amount 
+    *   **currency**: Account currency
+        *   Varchar
+        *   Depence on the account_id field 
+    *   **provider_id**: The id of the financial provider where the deposit is made 
+        *   Unique 
+        *   Foreign Key 
+    *   **provider_name**: Name of the financial provider where the deposit is made
+        *   String/Varchar 
+    *   **in_external_id**: Deposit id vissible for third parties 
+        *   Unique  
+        *   Varchar    
+   
+### Table: Merchant 
+*   **Merchant**: Any business partner that accepts deposits in exchange of their goods and services. 
+    *   **merchant_id**: The id of the merchant where the deposit is made 
+        *   Unique 
+        *   Primary Key 
+    *   **merchant_name**: Name of the merchant where the deposit is made
+        *   String/Varchar 
+    *   **merchant_type**: Type of the business partner
         *   Category 
-        *   Options: Merchant [merchant], Financial Provider [pay_provider]
-    *   **partner_sub_type**: Type of the business partner within partner_type
-        *   Category [dependent on partner_type] 
-        *   Options: If merchant [merchant_goods; merchant_services; merchant_other]; If pay_provier [bank; pay_method] 
+        *   Options: merchant_goods; merchant_services; merchant_other 
+    *   **amount**: Amount of money by deposit still in merchant account
+    *   **currency**: Currency 
+
+### Table: Financial Provider
+*   **Financial Provider**: Any financial intermediary that accepts transaction for payins and/or payouts. 
+    *   **provider_id**: The id of the merchant where the deposit is made 
+        *   Unique 
+        *   Foreign Key 
+    *   **provider_name**: Name of the merchant where the deposit is made
+        *   String/Varchar 
+    *   **provider_type**: Type of the business partner
+        *   Category 
+        *   Options: bank_method or pay_method 
+    *   **payin_status**: Boolean if payin is enabled with the method or not. Payin is the hability to deposit in this payment method with the financial provider
+        *   TRUE/FALSE 
+    *   **payouts_status**: Boolean if payout is enabled with the method or not. Payout is the hability to deposit in the financial provider with this payment method. 
+        *   TRUE/FALSE 
+
+
 ### Tables and structure: Task 
 
 #### Table example: User  
