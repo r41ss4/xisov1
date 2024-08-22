@@ -1,18 +1,21 @@
+-- Create db and use it
 CREATE DATABASE xiso_staging;
 
 USE xiso_staging;
 
+-- Create tables
+-- Create users main table
 CREATE TABLE users (
   user_id integer UNIQUE PRIMARY KEY,
   user_name varchar(255) NOT NULL DEFAULT 'DefaultName',
   user_lastname varchar(255) NOT NULL DEFAULT 'DefaultLastname',
   phone varchar (25) UNIQUE NOT NULL,
-  local_account_id integer UNIQUE NOT NULL,
   usd_account_id integer UNIQUE NOT NULL,
   nacional_id varchar(255) UNIQUE NOT NULL,
   birthdate date
 );
 
+-- Create table for extra user info
 CREATE TABLE user_kyc (
   user_id integer PRIMARY KEY,
   user_name varchar(255) NOT NULL DEFAULT 'DefaultName',
@@ -21,9 +24,12 @@ CREATE TABLE user_kyc (
   email varchar(255) UNIQUE NOT NULL,
   address varchar(255) UNIQUE NOT NULL,
   birthdate date,
-  phone varchar (25) UNIQUE NOT NULL
+  phone varchar (25) UNIQUE NOT NULL,
+  	FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
 );
 
+-- Create table for cards
 CREATE TABLE user_cards (
   user_id integer PRIMARY KEY,
   method_id integer UNIQUE,
@@ -31,18 +37,24 @@ CREATE TABLE user_cards (
   card_num integer UNIQUE,
   cvv_num integer UNIQUE,
   card_name varchar(255),
-  card_lastname varchar(255)
+  card_lastname varchar(255),
+	FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
 );
 
+-- Create table to track account money transactions
 CREATE TABLE usd_accounts (
   usd_account_id integer PRIMARY KEY,
   user_id integer UNIQUE NOT NULL,
   amount integer,
   currency varchar(255) DEFAULT 'USD',
   user_name varchar(255) NOT NULL DEFAULT 'DefaultName',
-  user_lastname varchar(255) NOT NULL DEFAULT 'DefaultLastname'
+  user_lastname varchar(255) NOT NULL DEFAULT 'DefaultLastname',
+  	FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
 );
 
+-- Create table for all deposits
 CREATE TABLE deposit (
   deposit_id integer PRIMARY KEY,
   account_id integer UNIQUE,
@@ -51,9 +63,12 @@ CREATE TABLE deposit (
   merchant_id integer UNIQUE,
   merchant_name varchar(255) UNIQUE,
   external_id char(25) UNIQUE NOT NULL DEFAULT (UUID()),
-  deposit_date timestamp
+  deposit_date timestamp,
+	FOREIGN KEY (account_id)
+        REFERENCES usd_accounts(usd_account_id)
 );
 
+-- Create table for all payin
 CREATE TABLE payin (
   payin_id bigint PRIMARY KEY,
   account_id integer UNIQUE,
@@ -63,9 +78,12 @@ CREATE TABLE payin (
   provider_name varchar(255) UNIQUE,
   external_id char(25) UNIQUE NOT NULL DEFAULT (UUID()),
   provider_fee integer,
-  payin_date timestamp 
+  payin_date timestamp,
+  	FOREIGN KEY (account_id)
+        REFERENCES usd_accounts(usd_account_id)
 );
 
+-- Create table for all payouts
 CREATE TABLE payout (
   payout_id integer PRIMARY KEY,
   account_id integer UNIQUE,
@@ -75,9 +93,12 @@ CREATE TABLE payout (
   provider_name varchar(255) UNIQUE,
   external_id char(25) UNIQUE NOT NULL DEFAULT (UUID()),
   provider_fee integer,
-  payout_date timestamp
+  payout_date timestamp,
+  	FOREIGN KEY (account_id)
+        REFERENCES usd_accounts(usd_account_id)
 );
 
+-- Create table for merchants 
 CREATE TABLE merchant (
   merchant_id integer PRIMARY KEY,
   merchant_name varchar(255) UNIQUE,
@@ -87,6 +108,7 @@ CREATE TABLE merchant (
   merchant_fee integer
 );
 
+-- Create table for financial providers
 CREATE TABLE financial_provider (
   provider_id integer PRIMARY KEY,
   provider_name varchar(255) UNIQUE,
@@ -97,7 +119,7 @@ CREATE TABLE financial_provider (
 );
 
 
-
+-- Create trigger to cascade info when user creates an account
 DELIMITER //
 
 CREATE TRIGGER after_user_insert
