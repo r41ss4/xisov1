@@ -1,0 +1,109 @@
+// Use DBML to define the database structure diagram
+// Docs: https://dbml.dbdiagram.io/docs
+
+// Users data is distribute in three tables: user, user_kyc and user_cards
+Table user {
+  user_id integer [primary key]
+  user_name varchar [not null]
+  user_lastname varchar [not null]
+  local_account_id integer [not null, unique]
+  usd_account_id integer [not null, unique]
+  nacional_id varchar [not null, unique]
+}
+Ref: user.user_id - user_kyc.user_id
+
+Table user_kyc {
+  user_id integer [primary key]
+  user_name varchar [not null]
+  user_lastname varchar [not null]
+  nacional_id varchar [not null, unique]
+  email varchar [not null, unique]
+  address varchar [not null]
+  birthday date [not null]
+  phone integer [not null, unique]
+}
+Ref: user_kyc.user_id < user_cards.user_id
+Ref: user.user_id < user_cards.user_id
+
+Table user_cards {
+  user_id integer [primary key]
+  method_id integer [not null, unique]
+  method_name varchar [not null, unique]
+  card_num integer [not null, unique]
+  cvv_num integer [not null, unique]
+  card_name varchar [not null]
+  card_lastname varchar [not null]
+}
+
+// User have a local currency account and a usd account
+Table usd_accounts {
+  usd_account_id integer [primary key]
+  user_id integer [not null, unique]
+  amount integer [not null]
+  currency varchar [not null]
+  user_name varchar [not null]
+  user_lastname varchar [not null]
+}
+Ref: user.user_id - usd_accounts.user_id
+Ref: user.usd_account_id - usd_accounts.usd_account_id
+
+// There are three type of transaction a user can do: deposit, payin or payout
+Table deposit { 
+  deposit_id integer [primary key]
+  account_id integer [not null, unique]
+  amount integer [not null]
+  currency varchar [not null]
+  merchant_id integer [not null, unique]
+  merchant_name varchar [not null, unique]
+  external_id varchar [not null, unique]
+  date timestamp [not null]
+}
+Ref: deposit.account_id - usd_accounts.usd_account_id
+
+Table payin { 
+  payin_id bigint [primary key]
+  account_id integer [not null, unique]
+  amount integer [not null]
+  currency varchar [not null]
+  provider_id integer [not null]
+  provider_name varchar [not null, unique]
+  external_id varchar [not null, unique]
+  provider_fee integer [not null]
+  date timestamp [not null]
+}
+Ref: payin.account_id - usd_accounts.usd_account_id
+
+Table payout { 
+  payout_id integer [primary key]
+  account_id integer [not null, unique]
+  amount integer [not null]
+  currency varchar [not null]
+  provider_id integer [not null]
+  provider_name varchar [not null, unique]
+  external_id varchar [not null, unique]
+  provider_fee integer [not null]
+  date timestamp [not null]
+}
+Ref: payout.account_id - usd_accounts.usd_account_id
+
+// There are two main type of third parties this application can interact with: merchants and financial providers
+Table merchant {
+  merchant_id integer [primary key]
+  merchant_name varchar [not null, unique]
+  merchant_type varchar [not null]
+  amount integer [not null]
+  currency varchar [not null]
+  merchant_fee integer [not null]
+}
+Ref: merchant.merchant_id - deposit.merchant_id
+
+Table financial_provider {
+  provider_id integer [primary key]
+  provider_name varchar [not null, unique]
+  provider_type varchar [not null]
+  payin_status boolean [not null]
+  payout_status boolean [not null]
+  provider_fee integer [not null]
+}
+Ref: financial_provider.provider_id - payin.provider_id
+Ref: financial_provider.provider_id - payout.provider_id
