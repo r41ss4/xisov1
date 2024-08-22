@@ -24,9 +24,7 @@ CREATE TABLE user_kyc (
   email varchar(255) UNIQUE NOT NULL,
   address varchar(255) UNIQUE NOT NULL,
   birthdate date,
-  phone varchar (25) UNIQUE NOT NULL,
-  	FOREIGN KEY (user_id)
-        REFERENCES users(user_id)
+  phone varchar (25) UNIQUE NOT NULL
 );
 
 -- Create table for cards
@@ -37,9 +35,7 @@ CREATE TABLE user_cards (
   card_num integer UNIQUE,
   cvv_num integer UNIQUE,
   card_name varchar(255),
-  card_lastname varchar(255),
-	FOREIGN KEY (user_id)
-        REFERENCES users(user_id)
+  card_lastname varchar(255)
 );
 
 -- Create table to track account money transactions
@@ -49,9 +45,7 @@ CREATE TABLE usd_accounts (
   amount integer,
   currency varchar(255) DEFAULT 'USD',
   user_name varchar(255) NOT NULL DEFAULT 'DefaultName',
-  user_lastname varchar(255) NOT NULL DEFAULT 'DefaultLastname',
-  	FOREIGN KEY (user_id)
-        REFERENCES users(user_id)
+  user_lastname varchar(255) NOT NULL DEFAULT 'DefaultLastname'
 );
 
 -- Create table for all deposits
@@ -63,9 +57,7 @@ CREATE TABLE deposit (
   merchant_id integer UNIQUE,
   merchant_name varchar(255) UNIQUE,
   external_id char(25) UNIQUE NOT NULL DEFAULT (UUID()),
-  deposit_date timestamp,
-	FOREIGN KEY (account_id)
-        REFERENCES usd_accounts(usd_account_id)
+  deposit_date timestamp
 );
 
 -- Create table for all payin
@@ -78,9 +70,7 @@ CREATE TABLE payin (
   provider_name varchar(255) UNIQUE,
   external_id char(25) UNIQUE NOT NULL DEFAULT (UUID()),
   provider_fee integer,
-  payin_date timestamp,
-  	FOREIGN KEY (account_id)
-        REFERENCES usd_accounts(usd_account_id)
+  payin_date timestamp
 );
 
 -- Create table for all payouts
@@ -93,9 +83,7 @@ CREATE TABLE payout (
   provider_name varchar(255) UNIQUE,
   external_id char(25) UNIQUE NOT NULL DEFAULT (UUID()),
   provider_fee integer,
-  payout_date timestamp,
-  	FOREIGN KEY (account_id)
-        REFERENCES usd_accounts(usd_account_id)
+  payout_date timestamp
 );
 
 -- Create table for merchants 
@@ -178,7 +166,7 @@ BEGIN
         NEW.usd_account_id,
         NEW.user_id,
         0,       -- Default value for amount
-        '',      -- Default value for currency
+        'USD',      -- Default value for currency
         NEW.user_name,
         NEW.user_lastname
         
@@ -186,6 +174,20 @@ BEGIN
 END//
 
 DELIMITER ;
+
+ALTER TABLE user_kyc ADD FOREIGN KEY (user_id) REFERENCES users (user_id);
+
+ALTER TABLE user_cards ADD FOREIGN KEY (user_id) REFERENCES user_kyc (user_id);
+
+ALTER TABLE user_cards ADD FOREIGN KEY (user_id) REFERENCES users (user_id);
+
+ALTER TABLE usd_accounts ADD FOREIGN KEY (user_id) REFERENCES users (user_id);
+
+ALTER TABLE deposit ADD FOREIGN KEY (merchant_id) REFERENCES merchant (merchant_id);
+
+ALTER TABLE payin ADD FOREIGN KEY (provider_id) REFERENCES financial_provider (provider_id);
+
+ALTER TABLE payout ADD FOREIGN KEY (provider_id) REFERENCES financial_provider (provider_id);
 
 
 
