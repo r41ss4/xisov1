@@ -1,7 +1,7 @@
 -- Create db and use it
-CREATE DATABASE xiso_staging;
+CREATE DATABASE xiso_staging_t;
 
-USE xiso_staging;
+USE xiso_staging_t;
 
 -- Create tables
 -- Create users main table
@@ -10,7 +10,7 @@ CREATE TABLE users (
   user_name varchar(255) NOT NULL DEFAULT 'DefaultName',
   user_lastname varchar(255) NOT NULL DEFAULT 'DefaultLastname',
   phone varchar (25) UNIQUE NOT NULL,
-  usd_account_id integer UNIQUE NOT NULL,
+  usd_account_id char(15) UNIQUE NOT NULL,
   nacional_id varchar(255) UNIQUE NOT NULL,
   birthdate date
 );
@@ -40,7 +40,7 @@ CREATE TABLE user_cards (
 
 -- Create table to track account money transactions
 CREATE TABLE usd_accounts (
-  usd_account_id integer PRIMARY KEY,
+  usd_account_id char(15) PRIMARY KEY,
   user_id char(15) UNIQUE NOT NULL,
   amount decimal (15, 2) NOT NULL,
   currency varchar(3) DEFAULT 'USD',
@@ -51,11 +51,11 @@ CREATE TABLE usd_accounts (
 -- Create table for all deposits
 CREATE TABLE deposit (
   deposit_id integer PRIMARY KEY,
-  account_id integer UNIQUE,
+  account_id char(15),
   amount decimal (15, 2) NOT NULL,
   currency varchar(3) DEFAULT 'USD',
-  merchant_id integer UNIQUE,
-  merchant_name varchar(255) UNIQUE,
+  merchant_id integer,
+  merchant_name varchar(255),
   external_id char(25) UNIQUE NOT NULL DEFAULT (UUID()),
   deposit_date timestamp
 );
@@ -63,11 +63,11 @@ CREATE TABLE deposit (
 -- Create table for all payin
 CREATE TABLE payin (
   payin_id bigint PRIMARY KEY,
-  account_id integer UNIQUE,
+  account_id char(15),
   amount decimal (15, 2) NOT NULL,
   currency varchar(3) DEFAULT 'USD',
   provider_id integer,
-  provider_name varchar(255) UNIQUE,
+  provider_name varchar(255),
   external_id char(25) UNIQUE NOT NULL DEFAULT (UUID()),
   provider_fee integer,
   payin_date timestamp
@@ -76,11 +76,11 @@ CREATE TABLE payin (
 -- Create table for all payouts
 CREATE TABLE payout (
   payout_id integer PRIMARY KEY,
-  account_id integer UNIQUE,
+  account_id char(15),
   amount decimal (15, 2) NOT NULL,
   currency varchar(3) DEFAULT 'USD',
   provider_id integer,
-  provider_name varchar(255) UNIQUE,
+  provider_name varchar(255),
   external_id char(25) UNIQUE NOT NULL DEFAULT (UUID()),
   provider_fee integer,
   payout_date timestamp
@@ -88,7 +88,7 @@ CREATE TABLE payout (
 
 -- Create table for merchants 
 CREATE TABLE merchant (
-  merchant_id integer PRIMARY KEY,
+  merchant_id integer UNIQUE PRIMARY KEY,
   merchant_name varchar(255) UNIQUE,
   merchant_type varchar(255),
   amount decimal (15, 2) NOT NULL,
@@ -98,7 +98,7 @@ CREATE TABLE merchant (
 
 -- Create table for financial providers
 CREATE TABLE financial_provider (
-  provider_id integer PRIMARY KEY,
+  provider_id integer UNIQUE PRIMARY KEY,
   provider_name varchar(255) UNIQUE,
   provider_type varchar(255),
   payin_status boolean,
@@ -106,9 +106,8 @@ CREATE TABLE financial_provider (
   provider_fee integer
 );
 
--- Create stored procedure to generate a unique 15-digit user ID
-DELIMITER //
 
+-- Create stored procedure to generate a unique 15-digit user ID
 DELIMITER //
 
 CREATE PROCEDURE generate_user_id(OUT new_id CHAR(15))
@@ -133,6 +132,53 @@ END//
 
 DELIMITER ;
 
+-- Create stored procedure to generate a unique 15 digit and letter usd account ID
+DELIMITER //
+
+CREATE PROCEDURE generate_alphanumeric_id(OUT new_usd_account_id CHAR(15))
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+	DECLARE temp_usd_id CHAR(15);
+    DECLARE chars CHAR(36) DEFAULT '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    DECLARE i INT DEFAULT 1;
+    DECLARE random_index INT;
+
+    -- Function to generate a random alphanumeric ID
+    SET @generate_random_id = CONCAT(
+        SUBSTRING(chars, FLOOR(RAND() * 36) + 1, 1),
+        SUBSTRING(chars, FLOOR(RAND() * 36) + 1, 1),
+        SUBSTRING(chars, FLOOR(RAND() * 36) + 1, 1),
+        SUBSTRING(chars, FLOOR(RAND() * 36) + 1, 1),
+        SUBSTRING(chars, FLOOR(RAND() * 36) + 1, 1),
+        SUBSTRING(chars, FLOOR(RAND() * 36) + 1, 1),
+        SUBSTRING(chars, FLOOR(RAND() * 36) + 1, 1),
+        SUBSTRING(chars, FLOOR(RAND() * 36) + 1, 1),
+        SUBSTRING(chars, FLOOR(RAND() * 36) + 1, 1),
+        SUBSTRING(chars, FLOOR(RAND() * 36) + 1, 1),
+        SUBSTRING(chars, FLOOR(RAND() * 36) + 1, 1),
+        SUBSTRING(chars, FLOOR(RAND() * 36) + 1, 1),
+        SUBSTRING(chars, FLOOR(RAND() * 36) + 1, 1),
+        SUBSTRING(chars, FLOOR(RAND() * 36) + 1, 1),
+        SUBSTRING(chars, FLOOR(RAND() * 36) + 1, 1)
+    );
+
+    -- Loop until a unique ID is found
+    WHILE NOT done DO
+        -- Generate a random 15-character alphanumeric ID
+        SET temp_usd_id = @generate_random_id;
+
+        -- Check if this ID already exists
+        IF NOT EXISTS (SELECT 1 FROM usd_accounts WHERE usd_account_id = temp_usd_id) THEN
+            SET done = TRUE;
+        END IF;
+    END WHILE;
+
+    -- Set the output parameter
+    SET new_usd_account_id = temp_usd_id;
+END//
+
+DELIMITER ;
+
 -- Create trigger to generate user ID before insert
 DELIMITER //
 
@@ -141,15 +187,24 @@ BEFORE INSERT ON users
 FOR EACH ROW
 BEGIN
     DECLARE new_user_id CHAR(15);
+    DECLARE new_usd_account_id CHAR(15);
     
     -- Call the stored procedure to generate a new user ID
     CALL generate_user_id(new_user_id);
     
     -- Set the new user ID for the inserted row
     SET NEW.user_id = new_user_id;
+
+    -- Call the stored procedure to generate a new usd account ID
+    CALL generate_alphanumeric_id(new_usd_account_id);
+
+    -- Set the new usd account ID for the inserted row
+    SET NEW.usd_account_id = new_usd_account_id;
+
+
 END//
 
--- Create trigger to cascade info when user creates an account (insert)
+-- Create trigger to cascade info when user creates an account
 DELIMITER //
 
 CREATE TRIGGER after_user_insert
@@ -230,6 +285,3 @@ ALTER TABLE deposit ADD FOREIGN KEY (merchant_id) REFERENCES merchant (merchant_
 ALTER TABLE payin ADD FOREIGN KEY (provider_id) REFERENCES financial_provider (provider_id);
 
 ALTER TABLE payout ADD FOREIGN KEY (provider_id) REFERENCES financial_provider (provider_id);
-
-
-
