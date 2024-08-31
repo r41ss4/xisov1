@@ -51,7 +51,7 @@ CREATE TABLE usd_accounts (
 -- Create table for all deposits
 CREATE TABLE deposit (
   deposit_id integer PRIMARY KEY,
-  account_id char(15),
+  usd_account_id char(15),
   amount decimal (15, 2) NOT NULL,
   currency varchar(3) DEFAULT 'USD',
   merchant_id integer,
@@ -63,7 +63,7 @@ CREATE TABLE deposit (
 -- Create table for all payin
 CREATE TABLE payin (
   payin_id bigint PRIMARY KEY,
-  account_id char(15),
+  usd_account_id char(15),
   amount decimal (15, 2) NOT NULL,
   currency varchar(3) DEFAULT 'USD',
   provider_id integer,
@@ -76,7 +76,7 @@ CREATE TABLE payin (
 -- Create table for all payouts
 CREATE TABLE payout (
   payout_id integer PRIMARY KEY,
-  account_id char(15),
+  usd_account_id char(15),
   amount decimal (15, 2) NOT NULL,
   currency varchar(3) DEFAULT 'USD',
   provider_id integer,
@@ -285,3 +285,10 @@ ALTER TABLE deposit ADD FOREIGN KEY (merchant_id) REFERENCES merchant (merchant_
 ALTER TABLE payin ADD FOREIGN KEY (provider_id) REFERENCES financial_provider (provider_id);
 
 ALTER TABLE payout ADD FOREIGN KEY (provider_id) REFERENCES financial_provider (provider_id);
+
+ALTER TABLE payin ADD FOREIGN KEY (usd_account_id) REFERENCES usd_accounts (usd_account_id);
+
+ALTER TABLE payout ADD FOREIGN KEY (usd_account_id) REFERENCES usd_accounts (usd_account_id);
+
+ALTER TABLE deposit ADD FOREIGN KEY (usd_account_id) REFERENCES usd_accounts (usd_account_id);
+
