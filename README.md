@@ -6,4 +6,6 @@ The database is called *xiso_staging* and in contains multiple tables, which are
 A detail text description of the database is available in **[inter_guide.md](https://github.com/r41ss4/xisov1/blob/main/inter_guide.md)**. The file is complemented with a png file that illustrates the relationship between tables, a image based on dbml script: **[xiso_diagram.dbml](https://github.com/r41ss4/xisov1/blob/main/xiso_diagram.dbml)**.    
 
 
-## Limitations 
+## Scope and limitations 
+This project includes the creation of needed basic tables for a fintech database, users creation and general types of transactions, such as deposits. It is complemented with the needed procedures and triggers to automatically generate a user id and account id when creating a new user.   
+However, the account amount of money, understood as the *amount* in the table *usd_accounts*, it does not change in relation with transactions. This means that inserts in *payin*, *payout* or *deposit* related to a certain *usd_account_id* will not modify the amount of in the table *usd_accounts*. Another limitation is that a user account can not transfer money to another user account.    
