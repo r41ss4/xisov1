@@ -3,43 +3,44 @@
 
 // Users data is distribute in three tables: user, user_kyc and user_cards
 Table user {
-  user_id integer [primary key]
+  user_id varchar [primary key]
   user_name varchar [not null]
   user_lastname varchar [not null]
-  local_account_id integer [not null, unique]
-  usd_account_id integer [not null, unique]
+  phone varchar [not null, unique]
+  usd_account_id varchar [not null, unique]
   nacional_id varchar [not null, unique]
+  birthdate date [not null]
 }
 Ref: user.user_id - user_kyc.user_id
 
 Table user_kyc {
-  user_id integer [primary key]
+  user_id varchar [primary key]
   user_name varchar [not null]
   user_lastname varchar [not null]
   nacional_id varchar [not null, unique]
   email varchar [not null, unique]
   address varchar [not null]
   birthday date [not null]
-  phone integer [not null, unique]
+  phone varchar [not null, unique]
 }
 Ref: user_kyc.user_id < user_cards.user_id
 Ref: user.user_id < user_cards.user_id
 
 Table user_cards {
-  user_id integer [primary key]
-  method_id integer [not null, unique]
-  method_name varchar [not null, unique]
-  card_num integer [not null, unique]
-  cvv_num integer [not null, unique]
+  user_id varchar [primary key]
+  method_id varchar [not null]
+  method_name varchar [not null]
+  card_num integer [not null]
+  cvv_num integer [not null]
   card_name varchar [not null]
   card_lastname varchar [not null]
 }
 
 // User have a local currency account and a usd account
 Table usd_accounts {
-  usd_account_id integer [primary key]
-  user_id integer [not null, unique]
-  amount integer [not null]
+  usd_account_id varchar [primary key]
+  user_id varchar [not null, unique]
+  amount decimal [not null]
   currency varchar [not null]
   user_name varchar [not null]
   user_lastname varchar [not null]
@@ -49,11 +50,11 @@ Ref: user.usd_account_id - usd_accounts.usd_account_id
 
 // There are three type of transaction a user can do: deposit, payin or payout
 Table deposit { 
-  deposit_id integer [primary key]
-  account_id integer [not null, unique]
-  amount integer [not null]
+  deposit_id varchar [primary key]
+  usd_account_id varchar [not null]
+  amount decimal [not null]
   currency varchar [not null]
-  merchant_id integer [not null, unique]
+  merchant_id varchar [not null]
   merchant_name varchar [not null, unique]
   external_id varchar [not null, unique]
   date timestamp [not null]
@@ -63,9 +64,9 @@ Ref: deposit.account_id - usd_accounts.usd_account_id
 Table payin { 
   payin_id bigint [primary key]
   account_id integer [not null, unique]
-  amount integer [not null]
+  amount decimal [not null]
   currency varchar [not null]
-  provider_id integer [not null]
+  provider_id varchar [not null]
   provider_name varchar [not null, unique]
   external_id varchar [not null, unique]
   provider_fee integer [not null]
@@ -76,9 +77,9 @@ Ref: payin.account_id - usd_accounts.usd_account_id
 Table payout { 
   payout_id integer [primary key]
   account_id integer [not null, unique]
-  amount integer [not null]
+  amount decimal [not null]
   currency varchar [not null]
-  provider_id integer [not null]
+  provider_id varchar [not null]
   provider_name varchar [not null, unique]
   external_id varchar [not null, unique]
   provider_fee integer [not null]
@@ -91,14 +92,14 @@ Table merchant {
   merchant_id integer [primary key]
   merchant_name varchar [not null, unique]
   merchant_type varchar [not null]
-  amount integer [not null]
+  amount decimal [not null]
   currency varchar [not null]
   merchant_fee integer [not null]
 }
 Ref: merchant.merchant_id - deposit.merchant_id
 
 Table financial_provider {
-  provider_id integer [primary key]
+  provider_id varchar [primary key]
   provider_name varchar [not null, unique]
   provider_type varchar [not null]
   payin_status boolean [not null]
