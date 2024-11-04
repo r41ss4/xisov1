@@ -55,41 +55,41 @@ Table deposit {
   amount decimal [not null]
   currency varchar [not null]
   merchant_id varchar [not null]
-  merchant_name varchar [not null, unique]
+  merchant_name varchar [not null]
   external_id varchar [not null, unique]
-  date timestamp [not null]
+  deposit_date timestamp [not null]
 }
-Ref: deposit.account_id - usd_accounts.usd_account_id
+Ref: deposit.usd_account_id - usd_accounts.usd_account_id
 
 Table payin { 
-  payin_id bigint [primary key]
-  account_id integer [not null, unique]
+  payin_id varchar [primary key]
+  usd_account_id varchar [not null]
   amount decimal [not null]
   currency varchar [not null]
   provider_id varchar [not null]
-  provider_name varchar [not null, unique]
+  provider_name varchar [not null]
   external_id varchar [not null, unique]
   provider_fee integer [not null]
-  date timestamp [not null]
+  payin_date timestamp [not null]
 }
-Ref: payin.account_id - usd_accounts.usd_account_id
+Ref: payin.usd_account_id - usd_accounts.usd_account_id
 
 Table payout { 
-  payout_id integer [primary key]
-  account_id integer [not null, unique]
+  payout_id varchar [primary key]
+  usd_account_id varchar [not null]
   amount decimal [not null]
   currency varchar [not null]
   provider_id varchar [not null]
-  provider_name varchar [not null, unique]
+  provider_name varchar [not null]
   external_id varchar [not null, unique]
   provider_fee integer [not null]
-  date timestamp [not null]
+  payout_date timestamp [not null]
 }
-Ref: payout.account_id - usd_accounts.usd_account_id
+Ref: payout.usd_account_id - usd_accounts.usd_account_id
 
 // There are two main type of third parties this application can interact with: merchants and financial providers
 Table merchant {
-  merchant_id integer [primary key]
+  merchant_id varchar [primary key]
   merchant_name varchar [not null, unique]
   merchant_type varchar [not null]
   amount decimal [not null]
