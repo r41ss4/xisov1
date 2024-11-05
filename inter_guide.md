@@ -54,8 +54,8 @@
     - `method_name`: The name of the card provider (e.g., Visa, MasterCard).
     - `card_num`: The card number.
     - `cvv_num`: The CVV number of the card.
-    - `card_name`: The name on the card.
-    - `card_lastname`: The surname on the card.
+    - `card_name`: The name on the card owner.
+    - `card_lastname`: The lastname on the card owner.
 
 **Composite Key**: `user_id` + `card_num`
 

@@ -30,10 +30,10 @@ CREATE TABLE user_kyc (
 -- Create table for cards
 CREATE TABLE user_cards (
   user_id char(15) PRIMARY KEY,
-  provider_id char(4) UNIQUE,
-  method_name varchar(255) UNIQUE,
-  card_num integer UNIQUE,
-  cvv_num integer UNIQUE,
+  provider_id char(4),
+  method_name varchar(255),
+  card_num integer,
+  cvv_num integer,
   card_name varchar(255),
   card_lastname varchar(255)
 );
