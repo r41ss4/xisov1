@@ -156,6 +156,12 @@
 
 
 ## Tables and structure  
+### Diagram made in dbdiagram.oi
 <p>
-    <img src="/xiso_dbmldiagram.png" width="800" height="800" />
+    <img src="/db_visualization/xiso_dbmldiagram.png" width="800" height="800" />
+</p>    
+
+### ERR Diagram
+<p>
+    <img src="/db_visualization/xiso_errdiagram.png" width="800" height="800" />
 </p>    
