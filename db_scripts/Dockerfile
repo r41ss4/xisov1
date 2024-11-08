@@ -4,20 +4,20 @@ FROM mysql:8.0
 # Set environment variables for MySQL
 ENV MYSQL_ROOT_PASSWORD=root_password
 ENV MYSQL_DATABASE=xiso_db
-ENV MYSQL_USER=root
-ENV MYSQL_PASSWORD=r41ss4
 
 # Create directory to hold SQL scripts and copy them
 RUN mkdir -p /docker-entrypoint-initdb.d/
 COPY xiso_db.sql /docker-entrypoint-initdb.d/
 COPY inserts_plus.sql /docker-entrypoint-initdb.d/
 
-# Set up a custom entrypoint
-# COPY ./entrypoint.sh /usr/local/bin/
-# RUN chmod +x /usr/local/bin/entrypoint.sh
+# Ensure the log directory exists
+RUN mkdir -p /var/log/mysql
 
-# Use the custom entrypoint script
-# ENTRYPOINT ["entrypoint.sh"]
+# Copy custom MySQL configuration
+COPY my.cnf /etc/mysql/my.cnf
 
 # Expose MySQL port
-EXPOSE 3322
+EXPOSE 3306
+
+# Start the MySQL server when the container is run
+CMD ["mysqld"]
