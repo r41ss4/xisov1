@@ -11,6 +11,17 @@ This project includes the creation of needed basic tables for a fintech database
 
 However, the account amount of money, understood as the *amount* in the table *usd_accounts*, it does not change in relation with transactions. This means that inserts in *payin*, *payout* or *deposit* related to a certain *usd_account_id* will not modify the amount of in the table *usd_accounts*. Such situation also occurs with merchants accounts, as users deposit do not add into the merchant's amount in their table. 
 
+## Getting Started
+To build and run the Docker container for this project, follow these steps:
+
+1. **Build the Docker Image**: In the terminal, positioned within the corresponding folder, run the following command. It creates a Docker image named xiso-db using the Dockerfile in the current directory. This image will include all the configurations and files specified in the Dockerfile:  
+   ```sh
+   docker build -t xiso-db .
+    ```
+2. **Run the Docker Container**: In the terminal, positioned within the corresponding folder, run the following command. It starts the Docker container, maps port 3322 on your host to port 3322 in the container, and mounts a local directory to /var/log/mysql in the container to store MySQL logs:  
+   ```
+   docker run --name xiso-container -d -p 3322:3322 -v /path/to/your/local/directory/mysql_logs:/var/log/mysql xiso-db
+    ```
 ### Diagram made in dbdiagram.oi
 <p>
     <img src="/db_visualization/xiso_dbmldiagram.png" width="800" height="800" />
