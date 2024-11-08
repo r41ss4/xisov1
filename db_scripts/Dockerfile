@@ -17,7 +17,7 @@ RUN mkdir -p /var/log/mysql
 COPY my.cnf /etc/mysql/my.cnf
 
 # Expose MySQL port
-EXPOSE 3306
+EXPOSE 3322
 
 # Start the MySQL server when the container is run
 CMD ["mysqld"]
